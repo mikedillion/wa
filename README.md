@@ -8,8 +8,8 @@ License
 GNU General Public License version 2
 
 
-Installaction
--------------
+Installation
+------------
 
 ```
 $ sudo python setup.py install
