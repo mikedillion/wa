@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+''' WolframAlpha API console client '''
+import os
+import sys
+import colorama
+import requests
+from bs4 import BeautifulSoup
+
+
+def main():
+    colorama.init(autoreset=True)
+
+    if len(sys.argv[1:]) == 0:
+        sys.stderr.write('WolframAlpha API console client\n')
+        sys.stderr.write('Usage: %s <query>\n' % sys.argv[0])
+        sys.exit(1)
+
+    try:
+        with open(os.path.expanduser('~/.wolfram_api_key')) as apif:
+            apikey = apif.readline().rstrip('\n')
+    except IOError:
+        sys.stderr.write('WolframAlpha API key required to use this script.\n' \
+                         'Get yours at http://products.wolframalpha.com/api/\n')
+        sys.exit(1)
+
+    query = ' '.join(sys.argv[1:])
+    response = requests.get("https://api.wolframalpha.com/v2/query",
+                            params={"input": query, "appid": apikey})
+
+    if not response.ok:
+        raise Exception('HTTP request failed')
+
+    soup = BeautifulSoup(response.text)
+
+    if soup.queryresult.attrs['error'] == 'true':
+        raise Exception('WolframAlpha error %s: %s'
+                        % (soup.queryresult.error.code.text,
+                        soup.queryresult.error.msg.text))
+    elif soup.queryresult.attrs['success'] == 'false':
+        raise Exception('WolframAlpha failed to interpret query')
+
+    for pod in soup.findAll('pod'):
+        sys.stdout.write(colorama.Fore.CYAN + pod.attrs['title'] + '\n')
+        for subpod in pod.findAll('subpod'):
+            sys.stdout.write('  %s\n' % subpod.plaintext.text.replace('\n', '\n  '))
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
