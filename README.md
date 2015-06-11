@@ -11,6 +11,8 @@ GNU General Public License version 2
 Installation
 ------------
 
+Get your API key at http://products.wolframalpha.com/api/ and put it in `~/.wolfram_api_key` file.
+
 ```
 $ sudo python setup.py install
 ```
