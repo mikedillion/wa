@@ -30,7 +30,7 @@ def main():
     if not response.ok:
         raise Exception('HTTP request failed')
 
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "lxml")
 
     if soup.queryresult.attrs['error'] == 'true':
         raise Exception('WolframAlpha error %s: %s'
